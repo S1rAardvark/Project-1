@@ -46,7 +46,7 @@ public class MyLinkedList {
         if(session.getSessionID() < this.data.getSessionID())
             return new MyLinkedList(session, this);
         else if (this.next == null || session.getSessionID() < this.next.data.getSessionID())
-            return (this.next = new MyLinkedList(session, this));
+            return (this.next = new MyLinkedList(session, this.next));
         return (this.next = this.next.insertAfter(session));
     }
 
@@ -133,7 +133,7 @@ public class MyLinkedList {
     // Helper Methods
 
     public MyLinkedList add(Session s) {
-        if(this.data().getSessionID() > s.getSessionID()) return this.addFirst(s);
+        if(this.data == null || this.data().getSessionID() > s.getSessionID()) return this.addFirst(s);
         else if(this.getLast().data().getSessionID() < s.getSessionID()) return this.addLast(s);
         else return this.insertAfter(s);
     }
@@ -141,7 +141,7 @@ public class MyLinkedList {
     // Walks to the end of the list and returns the last node.
     public MyLinkedList getLast() {
         MyLinkedList current = this;
-        while (current.next != null) current = current.next;
+        while(current.next != null) current = current.next;
         return current;
     }
 
@@ -155,5 +155,10 @@ public class MyLinkedList {
         if(this.data.getMentor().equals(mentor)) return this.data;
         if(this.next == null) return null;
         return this.next.getByMentor(mentor);
+    }
+
+    @Override
+    public String toString() {
+        return this.data.toString() + (this.next == null ? "" : (", " + this.next.toString()));
     }
 }

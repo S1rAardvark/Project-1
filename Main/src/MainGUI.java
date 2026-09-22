@@ -18,7 +18,7 @@ public class MainGUI extends JFrame {
     public MainGUI() {
         // TODO: Create a new LinkList
         setTitle("Employee Mentorship and Inclusion Manager");
-        setSize(600, 600);
+        setSize(900, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         createGUI();
@@ -65,6 +65,11 @@ public class MainGUI extends JFrame {
         JButton removeButton = new JButton("Remove");
         JButton registerButton = new JButton("Register");
         JButton exitButton = new JButton("Exit");
+
+        // Extra Credit:
+        JButton cancelButton = new JButton("Cancel Registration");
+        JButton updateButton = new JButton("Update Session");
+
         // add Buttons
         buttonPanel.add(addButton);
         buttonPanel.add(displayButton);
@@ -72,6 +77,11 @@ public class MainGUI extends JFrame {
         buttonPanel.add(removeButton);
         buttonPanel.add(registerButton);
         buttonPanel.add(exitButton);
+
+        // Extra Credit:
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(updateButton);
+
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Button Actions:
@@ -82,6 +92,10 @@ public class MainGUI extends JFrame {
         removeButton.addActionListener(e -> removeSession());
         registerButton.addActionListener(e -> registerParticipant());
         exitButton.addActionListener(e -> System.exit(0));
+
+        // Extra Credit:
+        cancelButton.addActionListener(e -> cancelRegistration());
+        updateButton.addActionListener(e -> updateSession());
     }
     // DO NOT CHANGE THIS METHOD!
     // It clears all fields in the layout
@@ -114,7 +128,7 @@ public class MainGUI extends JFrame {
             clearFields();
         }
         catch(Exception e) {
-            outputArea.setText("Invalid input");
+            outputArea.setText(e.toString());
         }
     }
     
@@ -123,8 +137,7 @@ public class MainGUI extends JFrame {
         /* TODO: Print the sessions information in the
                   outputArea
         */
-        outputArea.setText("");
-        sessionList.display();
+        outputArea.setText(sessionList.toString());
     }
 
     // Search based on sessionID or mentor if the fields are not empty
@@ -138,11 +151,14 @@ public class MainGUI extends JFrame {
         */
         String s = searchSessionByID();
         if(s.equals("Not Found")) outputArea.setText("Session not found");
-        else outputArea.setText(s);
-        String m = mentorField.getText();
+        else {
+            outputArea.setText(s);
+            return;
+        }
+        String m = sessionList.searchByMentor(mentorField.getText());
         if(m.equals("Not Found")) outputArea.setText("No session found for mentor " + m);
         else {
-            outputArea.setText(sessionList.searchByMentor(m));
+            outputArea.setText(m);
             return;
         }
         outputArea.setText("Please enter a Session ID or Mentor name");
@@ -177,13 +193,40 @@ public class MainGUI extends JFrame {
         */
         outputArea.setText("");
         try {
-            if(sessionList.registerParticipant(new Session(Integer.parseInt(idField.getText()), titleField.getText(), mentorField.getText(), departmentField.getText(), dateField.getText(), timeField.getText(), locationField.getText(), Integer.parseInt(maxField.getText()))))
+            if(sessionList.registerParticipant(sessionList.getByID(Integer.parseInt(idField.getText()))))
                 outputArea.setText("Participant registered");
             else outputArea.setText("Registration failed");
-        } catch(Exception _) { outputArea.setText("Registration failed"); }
+        }
+        catch(Exception _) { outputArea.setText("Registration failed"); }
     }
 
     public static void main(String[] args) {
         new MainGUI();
+    }
+
+    // Extra Credit:
+
+    // remove one participant from the session
+    private void cancelRegistration() {
+        outputArea.setText("");
+        try {
+            if(sessionList.registerParticipant(sessionList.getByID(Integer.parseInt(idField.getText()))))
+                outputArea.setText("Successfully cancelled participant registration");
+            else outputArea.setText("Registration cancellation failed");
+        }
+        catch(Exception _) { outputArea.setText("Registration cancellation failed"); }
+    }
+
+    // update session information
+    private void updateSession() {
+        outputArea.setText("");
+        try {
+            Session s = sessionList.getByID(Integer.parseInt(idField.getText()));
+            if(!dateField.getText().isEmpty()) s.setDate(dateField.getText());
+            if(!locationField.getText().isEmpty()) s.setLocation(locationField.getText());
+            if(!timeField.getText().isEmpty()) s.setTime(timeField.getText());
+            outputArea.setText("Successfully updated session");
+        }
+        catch(Exception _) { outputArea.setText("Session update failed"); }
     }
 }
